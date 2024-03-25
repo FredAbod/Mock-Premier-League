@@ -9,13 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteFixture = exports.findAllFixtures = exports.findFixtureByLink = exports.editFixtureResult = exports.completeFixture = exports.addFixture = void 0;
+exports.searchFixturesByLocation = exports.searchFixturesByStatus = exports.searchFixturesByTeam = exports.searchFixturesByDateRange = exports.viewPendingFixtures = exports.completedFixtures = exports.deleteFixture = exports.findAllFixtures = exports.findFixtureByLink = exports.editFixtureResult = exports.completeFixture = exports.addFixture = void 0;
 const response_1 = require("../utils/lib/response");
 const teams_Models_1 = require("../models/teams.Models");
 const fixtures_Models_1 = require("../models/fixtures.Models");
+const admin_Models_1 = require("../models/admin.Models");
 const addFixture = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { homeTeam, awayTeam, startTime, location } = req.body;
+        const user = req.user; // Assert req.user as User type
+        // Find the admin document by user ID
+        const admin = yield admin_Models_1.AdminModel.findById(user.userId);
+        // Check if the admin document exists and has the role 'admin'
+        if (!admin || admin.role !== "admin") {
+            return (0, response_1.errorResMsg)(res, 400, "You're Not Authorized");
+        }
         // Check if all required fields are provided
         if (!homeTeam || !awayTeam || !startTime || !location) {
             return (0, response_1.errorResMsg)(res, 400, "All fields are required");
@@ -55,6 +63,13 @@ exports.addFixture = addFixture;
 const completeFixture = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { link } = req.params;
+        const user = req.user; // Assert req.user as User type
+        // Find the admin document by user ID
+        const admin = yield admin_Models_1.AdminModel.findById(user.userId);
+        // Check if the admin document exists and has the role 'admin'
+        if (!admin || admin.role !== "admin") {
+            return (0, response_1.errorResMsg)(res, 400, "You're Not Authorized");
+        }
         const fixture = yield fixtures_Models_1.FixtureModel.findOneAndUpdate({ link }, { status: "completed" }, { new: true });
         if (!fixture) {
             return (0, response_1.errorResMsg)(res, 404, "Fixture not found");
@@ -75,6 +90,13 @@ const editFixtureResult = (req, res) => __awaiter(void 0, void 0, void 0, functi
     try {
         const { link } = req.params;
         const { homeTeamScore, awayTeamScore } = req.body;
+        const user = req.user; // Assert req.user as User type
+        // Find the admin document by user ID
+        const admin = yield admin_Models_1.AdminModel.findById(user.userId);
+        // Check if the admin document exists and has the role 'admin'
+        if (!admin || admin.role !== "admin") {
+            return (0, response_1.errorResMsg)(res, 400, "You're Not Authorized");
+        }
         const fixture = yield fixtures_Models_1.FixtureModel.findOneAndUpdate({ link }, { result: { homeTeamScore, awayTeamScore } }, { new: true });
         if (!fixture) {
             return (0, response_1.errorResMsg)(res, 404, "Fixture not found");
@@ -110,6 +132,36 @@ const findFixtureByLink = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.findFixtureByLink = findFixtureByLink;
+const completedFixtures = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const completedFixtures = yield fixtures_Models_1.FixtureModel.find({ status: "completed" });
+        return (0, response_1.successResMsg)(res, 200, {
+            success: true,
+            data: completedFixtures,
+            message: "Completed fixtures retrieved successfully",
+        });
+    }
+    catch (error) {
+        console.error("Error retrieving completed fixtures:", error);
+        return (0, response_1.errorResMsg)(res, 500, "Internal server error");
+    }
+});
+exports.completedFixtures = completedFixtures;
+const viewPendingFixtures = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const pendingFixtures = yield fixtures_Models_1.FixtureModel.find({ status: 'pending' });
+        return (0, response_1.successResMsg)(res, 200, {
+            success: true,
+            data: pendingFixtures,
+            message: "Pending fixtures retrieved successfully",
+        });
+    }
+    catch (error) {
+        console.error("Error retrieving pending fixtures:", error);
+        return (0, response_1.errorResMsg)(res, 500, "Internal server error");
+    }
+});
+exports.viewPendingFixtures = viewPendingFixtures;
 const findAllFixtures = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const fixtures = yield fixtures_Models_1.FixtureModel.find();
@@ -144,3 +196,63 @@ const deleteFixture = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.deleteFixture = deleteFixture;
+// Controller to search fixtures by team names
+const searchFixturesByTeam = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { teamName } = req.params;
+        // Search for fixtures where either home team or away team matches the provided team name
+        const fixtures = yield fixtures_Models_1.FixtureModel.find({
+            $or: [{ homeTeam: teamName }, { awayTeam: teamName }],
+        });
+        return (0, response_1.successResMsg)(res, 200, { fixtures });
+    }
+    catch (error) {
+        console.error("Error searching fixtures by team name:", error);
+        return (0, response_1.errorResMsg)(res, 500, "Internal server error");
+    }
+});
+exports.searchFixturesByTeam = searchFixturesByTeam;
+// Controller to search fixtures by date range
+const searchFixturesByDateRange = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { startDate, endDate } = req.query;
+        // Search for fixtures within the specified date range
+        const fixtures = yield fixtures_Models_1.FixtureModel.find({
+            startTime: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        });
+        return (0, response_1.successResMsg)(res, 200, { fixtures });
+    }
+    catch (error) {
+        console.error("Error searching fixtures by date range:", error);
+        return (0, response_1.errorResMsg)(res, 500, "Internal server error");
+    }
+});
+exports.searchFixturesByDateRange = searchFixturesByDateRange;
+// Controller to search fixtures by location
+const searchFixturesByLocation = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { location } = req.params;
+        // Search for fixtures based on the provided location
+        const fixtures = yield fixtures_Models_1.FixtureModel.find({ location });
+        return (0, response_1.successResMsg)(res, 200, { fixtures });
+    }
+    catch (error) {
+        console.error("Error searching fixtures by location:", error);
+        return (0, response_1.errorResMsg)(res, 500, "Internal server error");
+    }
+});
+exports.searchFixturesByLocation = searchFixturesByLocation;
+// Controller to search fixtures by status
+const searchFixturesByStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { status } = req.params;
+        // Search for fixtures based on the provided status
+        const fixtures = yield fixtures_Models_1.FixtureModel.find({ status });
+        return (0, response_1.successResMsg)(res, 200, { fixtures });
+    }
+    catch (error) {
+        console.error("Error searching fixtures by status:", error);
+        return (0, response_1.errorResMsg)(res, 500, "Internal server error");
+    }
+});
+exports.searchFixturesByStatus = searchFixturesByStatus;

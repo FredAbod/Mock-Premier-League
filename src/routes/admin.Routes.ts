@@ -3,10 +3,10 @@ import { login, signUp } from '../controllers/admin.Controller';
 
 const router = express.Router();
 
-// Admin Signup
-router.post('/signup', signUp)
+// Admin signup route
+router.post('/signup', signUp);
 
-// Admin Login
+// Admin login route
 router.post('/login', login);
 
 export default router;

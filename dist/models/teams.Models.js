@@ -28,7 +28,9 @@ const mongoose_1 = __importStar(require("mongoose"));
 const teamSchema = new mongoose_1.Schema({
     name: { type: String, required: true, unique: true },
     logo: { type: String, required: true },
+    coach: { type: String },
     fixtures: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Fixture' }], // Array of fixture IDs referencing the Fixture model
+    players: [{ type: String }] // Array of player names as strings
 }, {
     versionKey: false,
     timestamps: true

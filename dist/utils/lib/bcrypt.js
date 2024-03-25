@@ -20,6 +20,9 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
  * @returns A promise that resolves to the hashed password.
  */
 const passwordHash = (password) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!password) {
+        throw new Error('Password cannot be empty');
+    }
     try {
         const salt = yield bcryptjs_1.default.genSalt(10);
         const hash = yield bcryptjs_1.default.hash(password, salt);
