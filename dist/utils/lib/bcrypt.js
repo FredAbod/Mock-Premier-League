@@ -41,6 +41,9 @@ exports.passwordHash = passwordHash;
  */
 const passwordCompare = (password, hash) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (!hash) {
+            throw new Error('Invalid hash provided');
+        }
         const isMatchPassword = yield bcryptjs_1.default.compare(password, hash);
         return isMatchPassword;
     }

@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.login = exports.signUp = void 0;
-const admin_Models_1 = require("../models/admin.Models");
+const admin_Models_1 = require("../models/admin.Models"); // Import the Admin interface and AdminModel
 const validation_1 = require("../utils/validation/validation");
 const response_1 = require("../utils/lib/response");
 const bcrypt_1 = require("../utils/lib/bcrypt");
@@ -71,7 +71,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         // Check if the user exists
         const admin = yield admin_Models_1.AdminModel.findOne({ email });
         if (!admin) {
-            return (0, response_1.errorResMsg)(res, 400, "Invalid email or password");
+            return (0, response_1.errorResMsg)(res, 400, "Admin Not Found");
         }
         // Check if the password is correct
         const isPasswordValid = yield (0, bcrypt_1.passwordCompare)(password, admin.password);

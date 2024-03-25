@@ -199,12 +199,12 @@ exports.deleteFixture = deleteFixture;
 // Controller to search fixtures by team names
 const searchFixturesByTeam = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { teamName } = req.params;
+        const { teamName } = req.query;
         // Search for fixtures where either home team or away team matches the provided team name
         const fixtures = yield fixtures_Models_1.FixtureModel.find({
             $or: [{ homeTeam: teamName }, { awayTeam: teamName }],
         });
-        return (0, response_1.successResMsg)(res, 200, { fixtures });
+        return (0, response_1.successResMsg)(res, 200, { fixtures, message: "Fixtures found by team name" });
     }
     catch (error) {
         console.error("Error searching fixtures by team name:", error);
@@ -212,15 +212,22 @@ const searchFixturesByTeam = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.searchFixturesByTeam = searchFixturesByTeam;
-// Controller to search fixtures by date range
 const searchFixturesByDateRange = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { startDate, endDate } = req.query;
+        // Extract query parameters and ensure they are of type string
+        const startDate = req.query.startDate;
+        const endDate = req.query.endDate;
+        // Check if startDate and endDate are provided and convert them to Date objects
+        const startDateTime = startDate ? new Date(startDate) : undefined;
+        const endDateTime = endDate ? new Date(endDate) : undefined;
         // Search for fixtures within the specified date range
         const fixtures = yield fixtures_Models_1.FixtureModel.find({
-            startTime: { $gte: new Date(startDate), $lte: new Date(endDate) },
+            startTime: {
+                $gte: startDateTime, // Use startDateTime if defined
+                $lte: endDateTime, // Use endDateTime if defined
+            },
         });
-        return (0, response_1.successResMsg)(res, 200, { fixtures });
+        return (0, response_1.successResMsg)(res, 200, { fixtures, message: "Fixtures found by date range" });
     }
     catch (error) {
         console.error("Error searching fixtures by date range:", error);
@@ -231,10 +238,10 @@ exports.searchFixturesByDateRange = searchFixturesByDateRange;
 // Controller to search fixtures by location
 const searchFixturesByLocation = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { location } = req.params;
+        const { location } = req.query;
         // Search for fixtures based on the provided location
         const fixtures = yield fixtures_Models_1.FixtureModel.find({ location });
-        return (0, response_1.successResMsg)(res, 200, { fixtures });
+        return (0, response_1.successResMsg)(res, 200, { fixtures, message: "Fixtures found by location" });
     }
     catch (error) {
         console.error("Error searching fixtures by location:", error);
@@ -245,10 +252,10 @@ exports.searchFixturesByLocation = searchFixturesByLocation;
 // Controller to search fixtures by status
 const searchFixturesByStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { status } = req.params;
+        const { status } = req.query;
         // Search for fixtures based on the provided status
         const fixtures = yield fixtures_Models_1.FixtureModel.find({ status });
-        return (0, response_1.successResMsg)(res, 200, { fixtures });
+        return (0, response_1.successResMsg)(res, 200, { fixtures, message: "Fixtures found by status" });
     }
     catch (error) {
         console.error("Error searching fixtures by status:", error);

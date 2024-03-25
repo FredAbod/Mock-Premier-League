@@ -28,11 +28,15 @@ const passwordHash = async (password: string): Promise<string> => {
  */
 const passwordCompare = async (password: string, hash: string): Promise<boolean> => {
   try {
+    if (!hash) {
+      throw new Error('Invalid hash provided');
+    }
     const isMatchPassword = await bcrypt.compare(password, hash);
     return isMatchPassword;
   } catch (error) {
     throw new Error('Error comparing passwords');
   }
 };
+
 
 export { passwordHash, passwordCompare };

@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { AdminModel } from "../models/admin.Models";
+import { Request, Response } from 'express';
+import { Admin, AdminModel } from '../models/admin.Models'; // Import the Admin interface and AdminModel
 import { loginSchema, signUpSchema } from "../utils/validation/validation";
 import { errorResMsg, successResMsg } from "../utils/lib/response";
 import { passwordCompare, passwordHash } from "../utils/lib/bcrypt";
@@ -62,9 +62,10 @@ const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     // Check if the user exists
-    const admin = await AdminModel.findOne({ email });
+    const admin: Admin | null = await AdminModel.findOne({ email });
+
     if (!admin) {
-      return errorResMsg(res, 400, "Invalid email or password");
+      return errorResMsg(res, 400, "Admin Not Found");
     }
 
     // Check if the password is correct
@@ -91,5 +92,6 @@ const login = async (req: Request, res: Response) => {
     return errorResMsg(res, 500, "Internal server error");
   }
 };
+
 // Export the signUp function
 export { signUp, login };

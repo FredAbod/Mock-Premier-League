@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const morgan_1 = __importDefault(require("morgan"));
 const db_1 = __importDefault(require("./database/db"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const express_session_1 = __importDefault(require("express-session"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const admin_Routes_1 = __importDefault(require("./routes/admin.Routes"));
 const user_Routes_1 = __importDefault(require("./routes/user.Routes"));
@@ -17,27 +18,17 @@ dotenv_1.default.config();
 // Create Express application
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
-// // Create Redis client
-// const redisClient = redis.createClient({
-//   host: process.env.REDIS_HOST,
-//   port: parseInt(process.env.REDIS_PORT || '6379'),
-//   // Add any other Redis configurations as needed
-// });
-// // Create session store
-// const store = new RedisStore({ client: redisClient });
-// // Session middleware with Redis store
-// app.use(
-//   session({
-//     store: store,
-//     secret: process.env.SESSION_SECRET || 'your_secret_key',
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//       secure: false, // Set to true if using HTTPS
-//       maxAge: 3600000, // Session duration in milliseconds
-//     },
-//   })
-// );
+// Session middleware with Redis store
+app.use((0, express_session_1.default)({
+    store: new (require('express-session').MemoryStore)(), // Use MemoryStore as session store
+    secret: process.env.SESSION_SECRET || 'your_secret_key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false,
+        maxAge: 3600000, // Session duration in milliseconds
+    },
+}));
 // Middleware
 app.use(express_1.default.json());
 // Morgan logging middleware
@@ -49,10 +40,10 @@ const limiter = (0, express_rate_limit_1.default)({
 });
 app.use('/api/', limiter);
 // Routes
-app.use('/admin', admin_Routes_1.default);
-app.use('/user', user_Routes_1.default);
-app.use('/team', team_Routes_1.default);
-app.use('/fixture', fixtures_Routes_1.default);
+app.use('/api/admin', admin_Routes_1.default);
+app.use('/api/user', user_Routes_1.default);
+app.use('/api/team', team_Routes_1.default);
+app.use('/api/fixture', fixtures_Routes_1.default);
 // Default route
 app.get('/', (req, res) => {
     res.send('Home Page!!');
