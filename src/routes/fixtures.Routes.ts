@@ -14,25 +14,25 @@ router.put('/completed/:link', isAuthenticated, completeFixture);
 router.put('/edit/:link', isAuthenticated, editFixtureResult);
 
 // Find fixture by link
-router.get('/find/:link', isAuthenticated, findFixtureByLink);
+router.get('/find/:link',  findFixtureByLink);
 
 // Find all fixtures
-router.get('/findAll', isAuthenticated, findAllFixtures);
+router.get('/findAll', findAllFixtures);
 
 // Search fixtures by team name
-router.get('/findByTeamName', isAuthenticated, searchFixturesByTeam);
+router.get('/findByTeamName',  searchFixturesByTeam);
 
 // Search fixtures by date range
-router.get('/findByDateRange', isAuthenticated, searchFixturesByDateRange);
+router.get('/findByDateRange', searchFixturesByDateRange);
 
 // Search fixtures by status
-router.get('/searchByStatus', isAuthenticated, searchFixturesByStatus);
+router.get('/searchByStatus',  searchFixturesByStatus);
 
 // View completed fixtures
-router.get('/viewCompleted', isAuthenticated, completedFixtures);
+router.get('/viewCompleted',  completedFixtures);
 
 // View pending fixtures
-router.get('/viewPending', isAuthenticated, viewPendingFixtures);
+router.get('/viewPending',  viewPendingFixtures);
 
 // Delete fixture
 router.delete('/delete/:link', isAuthenticated, deleteFixture);

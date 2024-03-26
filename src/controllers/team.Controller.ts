@@ -22,7 +22,7 @@ const addTeam = async (req: Request, res: Response) => {
 
     // Check if the admin document exists and has the role 'admin'
     if (!admin || admin.role !== "admin") {
-      return errorResMsg(res, 400, "You're Not Authorized");
+      return errorResMsg(res, 401, "You're Not Authorized");
     }
 
     // Check if required fields are provided
@@ -66,7 +66,16 @@ const addPlayersToTeam = async (req: Request, res: Response) => {
     try {
         const { players } = req.body;
         const teamId = req.params.id; // Access the team ID directly
+        const user = req.user as User; // Assert req.user as User type
 
+        // Find the admin document by user ID
+        const admin = await AdminModel.findById(user.userId);
+    
+        // Check if the admin document exists and has the role 'admin'
+        if (!admin || admin.role !== "admin") {
+          return errorResMsg(res, 401, "You're Not Authorized");
+        }
+    
         // Find the team by ID
         const team = await TeamModel.findById(teamId);
         if (!team) {
@@ -93,6 +102,16 @@ const updateTeamDetails = async (req: Request, res: Response) => {
     try {
         const {  name, logo } = req.body;
         const teamId = req.params.id;
+        const user = req.user as User; // Assert req.user as User type
+
+        // Find the admin document by user ID
+        const admin = await AdminModel.findById(user.userId);
+    
+        // Check if the admin document exists and has the role 'admin'
+        if (!admin || admin.role !== "admin") {
+          return errorResMsg(res, 401, "You're Not Authorized");
+        }
+    
         // Find the team by ID
         const team = await TeamModel.findById(teamId);
         if (!team) {
@@ -121,7 +140,16 @@ const deletePlayerFromTeam = async (req: Request, res: Response) => {
     try {
         const { playerName } = req.body;
         const teamId = req.params.id;
+        const user = req.user as User; // Assert req.user as User type
 
+        // Find the admin document by user ID
+        const admin = await AdminModel.findById(user.userId);
+    
+        // Check if the admin document exists and has the role 'admin'
+        if (!admin || admin.role !== "admin") {
+          return errorResMsg(res, 401, "You're Not Authorized");
+        }
+    
         // Find the team by ID
         const team = await TeamModel.findById(teamId);
         if (!team) {
@@ -154,7 +182,16 @@ const deletePlayerFromTeam = async (req: Request, res: Response) => {
 const deleteTeam = async (req: Request, res: Response) => {
     try {
         const teamId = req.params.id; // Access the team ID directly
+        const user = req.user as User; // Assert req.user as User type
 
+        // Find the admin document by user ID
+        const admin = await AdminModel.findById(user.userId);
+    
+        // Check if the admin document exists and has the role 'admin'
+        if (!admin || admin.role !== "admin") {
+          return errorResMsg(res, 401, "You're Not Authorized");
+        }
+    
         // Delete the team by ID
         const deletedTeam = await TeamModel.findByIdAndDelete(teamId);
         if (!deletedTeam) {
@@ -172,6 +209,58 @@ const deleteTeam = async (req: Request, res: Response) => {
     }
 };
 
+const getAllTeams = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      // Retrieve all teams from the database
+      const teams = await TeamModel.find();
+  
+      // Check if any teams were found
+      if (!teams || teams.length === 0) {
+        return errorResMsg(res, 404, "No teams found");
+      }
+  
+      // Send success response with the list of teams
+      return successResMsg(res, 200, {
+        success: true,
+        teams: teams,
+        message: "Teams retrieved successfully",
+      });
+    } catch (error) {
+      // Handle any errors that occur during the process
+      console.error("Error retrieving teams:", error);
+      return errorResMsg(res, 500, "Internal server error");
+    }
+  };
 
+  const getTeamByName = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      // Extract team name from request query
+      const { teamname } = req.query;
+  
+      // Check if teamname is provided
+      if (!teamname || typeof teamname !== 'string') {
+        return errorResMsg(res, 400, "Teamname parameter is required and must be a string");
+      }
+  
+      // Find the team in the database by its name
+      const team = await TeamModel.findOne({ name: teamname });
+  
+      // Check if the team exists
+      if (!team) {
+        return errorResMsg(res, 404, "Team not found");
+      }
+  
+      // Send success response with the found team
+      return successResMsg(res, 200, {
+        success: true,
+        team: team,
+        message: "Team retrieved successfully",
+      });
+    } catch (error) {
+      // Handle any errors that occur during the process
+      console.error("Error retrieving team:", error);
+      return errorResMsg(res, 500, "Internal server error");
+    }
+  };
 
-export { addTeam, deleteTeam, addPlayersToTeam, deletePlayerFromTeam, updateTeamDetails };
+export { addTeam, deleteTeam, addPlayersToTeam, deletePlayerFromTeam, updateTeamDetails, getAllTeams, getTeamByName};
