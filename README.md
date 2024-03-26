@@ -77,7 +77,8 @@ The API provides the following endpoints:
 * GET `/fixture/viewPending:` View pending fixtures.
 * DELETE `/fixture/delete/:link`: Delete a fixture.
 
-  For detailed usage instructions and request/response examples, refer to the [API documentation](https://github.com/FredAbod/Mock-Premier-League/).
+  For detailed usage instructions and request/response examples, refer to the [API documentation](https://documenter.getpostman.com/view/21992639/2sA35D5ijB).
+  Here Is the [Base URL](https://mock-premier-league.onrender.com)
 
 ### Authentication
 The API uses JWT (JSON Web Tokens) for authentication. To access protected routes, clients must include a valid JWT token in the `Authorization` header of the HTTP request.
